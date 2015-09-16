@@ -1,0 +1,18 @@
+{
+  "Comment": "A new record set for the zone.",
+  "Changes": [
+    {
+      "Action": "CREATE",
+      "ResourceRecordSet": {
+        "Name": "git-lfs-test.lsst.codes.",
+        "Type": "A",
+        "TTL": 300,
+        "ResourceRecords": [
+          {
+            "Value": "104.236.187.169"
+          }
+        ]
+      }
+    }
+  ]
+}
