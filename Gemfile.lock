@@ -2,28 +2,32 @@ GEM
   remote: https://rubygems.org/
   specs:
     addressable (2.3.8)
-    aws-sdk (2.1.20)
-      aws-sdk-resources (= 2.1.20)
-    aws-sdk-core (2.1.20)
+    aws-sdk (2.1.21)
+      aws-sdk-resources (= 2.1.21)
+    aws-sdk-core (2.1.21)
       jmespath (~> 1.0)
-    aws-sdk-resources (2.1.20)
-      aws-sdk-core (= 2.1.20)
+    aws-sdk-resources (2.1.21)
+      aws-sdk-core (= 2.1.21)
     faraday (0.9.1)
       multipart-post (>= 1.2, < 3)
-    git-lfs-s3 (0.1.1)
-      aws-sdk (~> 2)
-      multi_json
-      sinatra
     highline (1.7.3)
     jmespath (1.0.2)
       multi_json (~> 1.0)
+    lsst-git-lfs-s3 (0.1.4)
+      aws-sdk (~> 2)
+      multi_json (~> 1)
+      sinatra (~> 1)
     multi_json (1.11.2)
     multipart-post (2.0.0)
     octokit (4.1.0)
       sawyer (~> 0.6.0, >= 0.5.3)
+    passenger (5.0.18)
+      rack
+      rake (>= 0.8.1)
     rack (1.6.4)
     rack-protection (1.5.3)
       rack
+    rake (10.4.2)
     sawyer (0.6.0)
       addressable (~> 2.3.5)
       faraday (~> 0.8, < 0.10)
@@ -37,9 +41,10 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  git-lfs-s3 (= 0.1.1)
   highline (= 1.7.3)
+  lsst-git-lfs-s3 (= 0.1.4)
   octokit (= 4.1.0)
+  passenger (= 5.0.18)
 
 BUNDLED WITH
    1.10.6

@@ -9,6 +9,7 @@ GitLfsS3::Application.set :aws_access_key_id, ENV['AWS_ACCESS_KEY_ID']
 GitLfsS3::Application.set :aws_secret_access_key, ENV['AWS_SECRET_ACCESS_KEY']
 GitLfsS3::Application.set :s3_bucket, ENV['S3_BUCKET']
 GitLfsS3::Application.set :server_url, ENV['LFS_SERVER_URL']
+GitLfsS3::Application.set :public_server, (ENV['LFS_PUBLIC_SERVER'] == 'true')
 GitLfsS3::Application.set :logger, Logger.new(STDOUT)
 
 def verify_user_and_permissions(username, password)
@@ -17,22 +18,25 @@ def verify_user_and_permissions(username, password)
                                  :password => password)
     client.user
     if client.org_member?('lsst', username)
-      ret = true
+      return true
     else
-      ret = false
+      return false
     end
   rescue Octokit::Unauthorized
-    ret = false
+    return false
   end
-  ret
 end
 
-GitLfsS3::Application.on_authenticate do |username, password|
-  verify_user_and_permissions(username, password)
+GitLfsS3::Application.on_authenticate do |username, password, is_safe|
+  if is_safe
+    true
+  else
+    verify_user_and_permissions(username, password)
+  end
 end
 
-Rack::Handler::WEBrick.run(
-  GitLfsS3::Application.new,
-  Port: ENV['PORT'] || 8080,
-  Host: '0.0.0.0'
-)
+# Rack::Handler::WEBrick.run(
+#   GitLfsS3::Application.new,
+#   Port: ENV['PORT'] || 8080,
+#   Host: '0.0.0.0'
+# )

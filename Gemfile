@@ -1,5 +1,7 @@
 source 'https://rubygems.org'
-gem 'git-lfs-s3', '0.1.1'
+
+gem 'lsst-git-lfs-s3', '0.1.4'
 gem 'octokit', '4.1.0'
+gem 'passenger', '5.0.18'
 
 gem 'highline', '1.7.3', :group => :development
