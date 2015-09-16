@@ -40,3 +40,7 @@ build/
 
 # Secrets
 secrets.sh
+
+# Passenger
+passenger*.log
+passenger*.lock
