@@ -1,0 +1,73 @@
+#+TITLE: git-lfs presentation and discussion
+#+Startup: indent
+#+TODO: TODO(t) | IN_PROGRESS(p) | DONE(d)
+
+* Summary
+
+  SUCCESS.
+
+  But it's still in closed beta.
+
+  JIRA DM-3685
+  https://jira.lsstcorp.org/browse/DM-3685
+
+* Configuration
+
+(or .gitconfig  .git/config)
+
+[lfs]
+	url = "http://git-lfs-test.lsst.codes:8080"
+
+* Details
+
+So what's actually happening?
+
+curl -H "Content-Type: application/vnd.git-lfs+json" -X GET\
+  http://git-lfs-test.lsst.codes/objects/27d73d98c36f3dc0af6a78ae35b7ac66cbb5b379984500104f18f71864c94fd2
+
+  {"_links"=>{"download"=>{"href"=>
+  "https://lsst-git-lfs.s3-us-west-2.amazonaws.com/data/27d73d98c36f3dc0af6a78ae35b7ac66cbb5b379984500104f18f71864c94fd2?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAJWHGER7PWS265GCA%2F20150916%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20150916T034823Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host&X-Amz-Signature=099a7371e57dce917c3c23660e3124c7c089edcbfef97f31f4988aa822f044e1"}}}
+
+curl -H "Content-Type: application/vnd.git-lfs+json" -X POST ...\
+
+  {"_links"=>{"upload"=>{"href"=>
+  "https://lsst-git-lfs.s3-us-west-2.amazonaws.com/data/5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAJWHGER7PWS265GCA%2F20150916%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20150916T180723Z&X-Amz-Expires=900&X-Amz-SignedHeaders=host&X-Amz-Signature=4490e7e89bd853cc1d723d6163caf73fb5d54e333fdb5c513634b2b6b8f0c2d5", "header"=>{"content-type"=>""}}, "verify"=>{"href"=>"http://git-lfs-test.lsst.codes:8080/verify"}}}
+  POST /objects HTTP/1.1" 202
+  POST /verify HTTP/1.1" 200
+
+* Discussion
+
+Auth for push => Anyone in github's lsst org. Username and password.
+Forks work with your own LFS server.
+The worse case is it uses github instead of our server.
+
+* Deploy and Source
+
+https://rubygems.org/gems/lsst-git-lfs-s3
+
+https://github.com/lsst-sqre/git-lfs-s3-server
+
+TODOs: 
+
+* Unanswered questions and what's remaining.
+
+** Generally: Keep it simple. Easy to figure out. Minimize pulling of unecessary data.
+
+*** IN_PROGRESS Do we have to use github? What about a normal git server as a remote?
+  [ ] Another local as a remote
+  [ ] Bitbucket
+
+*** IN_PROGRESS Deploy with https.
+  [ ] On git-lfs-test.
+  [ ] Using docker.
+  
+*** TODO Rebasing non-sense? Submodule and/or tree non-sense?
+
+*** TODO Push to some repo that Frossie knows about.
+
+*** TODO jsick: What's the best way to document the configuration. Where? Blog write up.
+
+*** TODO For David: Don't pull all lfs files. Checkout only a subset of lfs files?
+
+*** TODO 5 TB limit is a concern. We could implement sharding if it becomes an issue.
+
