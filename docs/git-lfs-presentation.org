@@ -47,9 +47,19 @@ The worse case is it uses github instead of our server. Orphans possible.
 
 * Deploy and Source
 
+*Ruby*
+
+Used because it was the solution with the least resistance.
+
 https://rubygems.org/gems/lsst-git-lfs-s3
 
 https://github.com/lsst-sqre/git-lfs-s3-server
+
+*Python*
+
+Used for evaluating options for using the github API.
+
+https://github.com/lsst-sqre/github-api-research
 
 * Unanswered questions and what's remaining.
 
