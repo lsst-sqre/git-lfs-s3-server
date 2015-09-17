@@ -11,9 +11,13 @@
   JIRA DM-3685
   https://jira.lsstcorp.org/browse/DM-3685
 
+  The client and technology can be found at https://git-lfs.github.com/
+
 * Configuration
 
-(or .gitconfig  .git/config)
+brew install git-lfs  # Or your package manager's equivalent.
+
+(or ~/.gitconfig  ./.git/config)  # Two common files used to configure git.
 
 [lfs]
 	url = "http://git-lfs-test.lsst.codes:8080"
@@ -39,15 +43,13 @@ curl -H "Content-Type: application/vnd.git-lfs+json" -X POST ...\
 
 Auth for push => Anyone in github's lsst org. Username and password.
 Forks work with your own LFS server.
-The worse case is it uses github instead of our server.
+The worse case is it uses github instead of our server. Orphans possible.
 
 * Deploy and Source
 
 https://rubygems.org/gems/lsst-git-lfs-s3
 
 https://github.com/lsst-sqre/git-lfs-s3-server
-
-TODOs: 
 
 * Unanswered questions and what's remaining.
 
