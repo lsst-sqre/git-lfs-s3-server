@@ -39,8 +39,7 @@ build/
 *~
 
 # Secrets
-secrets.sh
-docker/secrets.conf
+extras/secrets.conf
 
 # Passenger
 passenger*.log
