@@ -39,7 +39,8 @@ build/
 *~
 
 # Secrets
-extras/secrets.conf
+*/secrets.conf
+*/secrets.sh
 
 # Passenger
 passenger*.log
