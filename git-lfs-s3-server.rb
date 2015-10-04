@@ -10,7 +10,17 @@ GitLfsS3::Application.set :aws_secret_access_key, ENV['AWS_SECRET_ACCESS_KEY']
 GitLfsS3::Application.set :s3_bucket, ENV['S3_BUCKET']
 GitLfsS3::Application.set :server_url, ENV['LFS_SERVER_URL']
 GitLfsS3::Application.set :public_server, (ENV['LFS_PUBLIC_SERVER'] == 'true')
+GitLfsS3::Application.set :ceph_s3, (ENV['LFS_CEPH_S3'] == 'true')
 GitLfsS3::Application.set :logger, Logger.new(STDOUT)
+
+Aws.config.update(
+  endpoint: 'https://s3.lsst.codes',
+  access_key_id: ENV['AWS_ACCESS_KEY_ID'],
+  secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'],
+  force_path_style: true,
+  region: 'us-east-1',
+  # ssl_ca_bundle: '/usr/local/etc/openssl/cert.pem' # Required for brew install on a mac.
+)
 
 def verify_user_and_permissions(username, password)
   begin
