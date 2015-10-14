@@ -1,6 +1,6 @@
 git-lfs
 =======
-
+NARF
 LSST stores large files using [git-lfs](https://git-lfs.github.com/). To use a git repo like which uses git-lfs you must install git-lfs and configure it. LSST runs their own git-lfs server and storage service. Git and git-lfs must configured to use our server.
 
 Add this to your git configuration. Typically `~/.gitconfig` or the repository's `.git/config` file.
