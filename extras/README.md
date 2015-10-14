@@ -25,20 +25,20 @@ Create a `secrets.conf` using the `secrets.conf.dist` template and link it
 in the `nginx/main.d`.
 
 ```bash
-ln -s /etc/nginx/main.d/secrets.conf /path/to/git-lfs-s3-server/extra/secrets.conf
+ln -s /path/to/git-lfs-s3-server/extra/secrets.conf /etc/nginx/main.d/
 ```
 
 Link the git-lfs-s3-server.conf file in `nginx/conf.d` or `nginx/sites-available` and `nginx/sites-enabled` directories.
 
 ```bash
-ln -s /etc/nginx/conf.d/ /path/to/git-lfs-s3-server/extra/secrets.conf
+ln -s /path/to/git-lfs-s3-server/extra/secrets.conf /etc/nginx/conf.d/
 ```
 
 or
 
 ```bash
-ln -s /etc/nginx/sites-available/ /path/to/git-lfs-s3-server/extra/git-lfs-s3-server.conf
-ln -s /etc/nginx/sites-enabled/ /etc/nginx/sites-available/git-lfs-s3-server.conf
+ln -s /path/to/git-lfs-s3-server/extra/git-lfs-s3-server.conf /etc/nginx/sites-available/
+ln -s /etc/nginx/sites-available/git-lfs-s3-server.conf /etc/nginx/sites-enabled/
 ```
 
 # RVM and Passenger #
