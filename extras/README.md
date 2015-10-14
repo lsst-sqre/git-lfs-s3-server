@@ -43,7 +43,7 @@ ln -s /etc/nginx/sites-available/git-lfs-s3-server.conf /etc/nginx/sites-enabled
 
 # RVM and Passenger #
 
-Install [rvm|https://rvm.io/].
+Install [rvm](https://rvm.io/).
 
 ```bash
 rvm install ruby-2.2.3
@@ -66,3 +66,7 @@ service nginx restart
 Update DNS using route53.
 
 aws route53 change-resource-record-sets --hosted-zone-id Z3TH0HRSNU67AM --change-batch file:///path/to/git-lfs-s3-server/extra/r53-record.json 
+
+# LICENSE #
+
+See the [LICENSE](../blob/master/LICENSE) file.
