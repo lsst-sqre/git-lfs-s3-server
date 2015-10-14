@@ -27,7 +27,7 @@ def verify_user_and_permissions(username, password)
     client = Octokit::Client.new(:login => username,
                                  :password => password)
     client.user
-    if client.org_member?('lsst', username)
+    if client.org_member?('lsst', client.user.login)
       return true
     else
       return false
