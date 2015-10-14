@@ -69,4 +69,4 @@ aws route53 change-resource-record-sets --hosted-zone-id Z3TH0HRSNU67AM --change
 
 # LICENSE #
 
-See the [LICENSE](../blob/master/LICENSE) file.
+See the [LICENSE](../LICENSE) file.
