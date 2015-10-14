@@ -1,15 +1,15 @@
 {
-  "Comment": "A new record set for the zone.",
+  "Comment": "A new record the git-lfs webserver.",
   "Changes": [
     {
-      "Action": "CREATE",
+      "Action": "UPSERT",
       "ResourceRecordSet": {
-        "Name": "git-lfs-test.lsst.codes.",
+        "Name": "git-lfs.lsst.codes.",
         "Type": "A",
         "TTL": 300,
         "ResourceRecords": [
           {
-            "Value": "104.236.187.169"
+            "Value": "0.0.0.0"
           }
         ]
       }
