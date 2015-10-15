@@ -34,7 +34,8 @@ def verify_user_and_permissions(username, password)
       return false
     end
   rescue Octokit::OneTimePasswordRequired => e
-    GitLfsS3::Application.settings.logger.warn 'Octokit::OneTimePasswordRequired exception raised for username #{username}.'
+    GitLfsS3::Application.settings.logger.warn\
+      'Octokit::OneTimePasswordRequired exception raised for username #{username}.'
     return false
   rescue Octokit::Unauthorized
     return false
