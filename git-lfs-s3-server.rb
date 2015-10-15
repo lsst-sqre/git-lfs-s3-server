@@ -11,10 +11,11 @@ GitLfsS3::Application.set :s3_bucket, ENV['S3_BUCKET']
 GitLfsS3::Application.set :server_url, ENV['LFS_SERVER_URL']
 GitLfsS3::Application.set :public_server, (ENV['LFS_PUBLIC_SERVER'] == 'true')
 GitLfsS3::Application.set :ceph_s3, (ENV['LFS_CEPH_S3'] == 'true')
+GitLfsS3::Application.set :endpoint, ENV['LFS_CEPH_ENDPOINT']
 GitLfsS3::Application.set :logger, Logger.new(STDOUT)
 
 Aws.config.update(
-  endpoint: 'https://s3.lsst.codes',
+  endpoint: ENV['LFS_CEPH_ENDPOINT'],
   access_key_id: ENV['AWS_ACCESS_KEY_ID'],
   secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'],
   force_path_style: true,
@@ -44,9 +45,3 @@ GitLfsS3::Application.on_authenticate do |username, password, is_safe|
     verify_user_and_permissions(username, password)
   end
 end
-
-# Rack::Handler::WEBrick.run(
-#   GitLfsS3::Application.new,
-#   Port: ENV['PORT'] || 8080,
-#   Host: '0.0.0.0'
-# )
