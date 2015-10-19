@@ -14,14 +14,22 @@ GitLfsS3::Application.set :ceph_s3, (ENV['LFS_CEPH_S3'] == 'true')
 GitLfsS3::Application.set :endpoint, ENV['LFS_CEPH_ENDPOINT']
 GitLfsS3::Application.set :logger, Logger.new(STDOUT)
 
-Aws.config.update(
-  endpoint: ENV['LFS_CEPH_ENDPOINT'],
-  access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-  secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'],
-  force_path_style: true,
-  region: 'us-east-1',
-  # ssl_ca_bundle: '/usr/local/etc/openssl/cert.pem' # Required for brew install on a mac.
+if GitLfsS3::Application.settings.ceph_s3
+  if not GitLfsS3::Application.settings.public_server
+    raise 'Ceph S3 only supports public_server mode.'
+  end
+  if not GitLfsS3::Application.settings.endpoint
+    raise 'Ceph S3 requires an endpoint.'
+  end
+  Aws.config.update(
+    endpoint: ENV['LFS_CEPH_ENDPOINT'],
+    access_key_id: ENV['AWS_ACCESS_KEY_ID'],
+    secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'],
+    force_path_style: true,
+    region: 'us-east-1',
+    # ssl_ca_bundle: '/usr/local/etc/openssl/cert.pem' # Required for brew install on a mac.
 )
+end
 
 def verify_user_and_permissions(username, password)
   begin
