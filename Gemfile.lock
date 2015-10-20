@@ -28,6 +28,7 @@ GEM
     rack-protection (1.5.3)
       rack
     rake (10.4.2)
+    redis (3.2.1)
     sawyer (0.6.0)
       addressable (~> 2.3.5)
       faraday (~> 0.8, < 0.10)
@@ -46,6 +47,7 @@ DEPENDENCIES
   lsst-git-lfs-s3 (= 0.2.5)
   octokit (= 4.1.0)
   passenger (= 5.0.20)
+  redis (= 3.2.1)
 
 BUNDLED WITH
    1.10.6
