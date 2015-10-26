@@ -84,7 +84,9 @@ def get_password_hash(username)
   # Use the request username to avoid using the github API unnecessarily.
   if @redis.connected?
     cached_hash = @redis.get(username)
-    SCrypt::Password.new(cached_hash)
+    if cached_hash
+      SCrypt::Password.new(cached_hash)
+    end
   end
 end
 
