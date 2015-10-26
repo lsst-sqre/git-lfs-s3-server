@@ -126,8 +126,10 @@ end
 
 def authorized?(env, app)
   auth = Rack::Auth::Basic::Request.new(env)
+  GitLfsS3::Application.settings.logger.warn env
+  GitLfsS3::Application.settings.logger.warn auth
   auth.provided? && auth.basic? && auth.credentials && app.class.auth_callback.call(
-    auth.credentials[0], auth.credentials[1], request.safe?
+    auth.credentials[0], auth.credentials[1], false
   )
 end
 
@@ -135,7 +137,7 @@ GitLfsS3::Application.extend AfterDo
 GitLfsS3::Application.after :call do |env, app|
   req = Rack::Request.new(env)
   if req.post? and req.path == '/verify'\
-    and req.content_type == 'application/vnd.git-lfs+json'\
+    and req.content_type.include?('application/vnd.git-lfs+json')\
     and authorized? env, app
       GitLfsS3::Application.settings.logger.debug req.body.tap { |b| b.rewind }.read
       data = MultiJson.load(req.body.tap { |b| b.rewind }.read)
@@ -144,6 +146,7 @@ GitLfsS3::Application.after :call do |env, app|
       if @redis.connected?
         if not @redis.get('backup=>' + oid_s3_name)
           @redis.publish 'backup', oid_s3_name
+          GitLfsS3::Application.settings.logger.debug 'Publish message to backup S3 object #{oid_s3_name}.'
         end
       else
         GitLfsS3::Application.settings.logger.warn 'Unable to backup oid = #{oid}'
