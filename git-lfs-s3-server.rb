@@ -134,19 +134,17 @@ GitLfsS3::Application.after :call do |env, app|
   req = Rack::Request.new(env)
   if req.post? and req.path == '/verify'\
     and req.content_type == 'application/vnd.git-lfs+json'\
-    and true #authorized? env, app
-      GitLfsS3::Application.settings.logger.debug 'authorized!'
+    and authorized? env, app
       GitLfsS3::Application.settings.logger.debug req.body.tap { |b| b.rewind }.read
       data = MultiJson.load(req.body.tap { |b| b.rewind }.read)
       oid = data['oid']
+      oid_s3_name = 'data/' + oid
       if @redis.connected?
-        if not @redis.get('backup' + '/' + oid)
-          @redis.publish 'backup', oid
+        if not @redis.get('backup=>' + oid_s3_name)
+          @redis.publish 'backup', oid_s3_name
         end
       else
         GitLfsS3::Application.settings.logger.warn 'Unable to backup oid = #{oid}'
       end
-  else
-      GitLfsS3::Application.settings.logger.debug "not authorized!"
   end
 end
