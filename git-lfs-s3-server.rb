@@ -24,7 +24,7 @@ GitLfsS3::Application.set :endpoint, ENV['LFS_CEPH_ENDPOINT']
 GitLfsS3::Application.set :logger, Logger.new(STDOUT)
 
 # GitHub Organization used to verify membership.
-GITHUB_ORG = 'lsst'
+GITHUB_ORG = ENV['LFS_GITHUB_ORG'] || 'lsst'
 
 # Configure and connect redis.
 @redis = Redis.new
@@ -81,35 +81,31 @@ def org_member?(client)
 end
 
 def get_password_hash(username)
-  # Use the request username to avoid using the github API.
+  # Use the request username to avoid using the github API unnecessarily.
   if @redis.connected?
     cached_hash = @redis.get(username)
-    cached_password = SCrypt::Password.new(cached_hash)
+    SCrypt::Password.new(cached_hash)
   end
 end
 
 def verify_user_and_permissions?(client, username, password)
-  result = false
   begin
     cached_password = get_password_hash(username)
     if cached_password
-      result = cached_password == password
+      return cached_password == password
     else
       if org_member?(client)
-        result = true
         hash = SCrypt::Password.create(
           password,
           salt: SCrypt::Engine.generate_salt)
         @redis.set(client.user.login, hash, ex: CACHE_EXPIRE)
-      else
-        result = false
+        return true
       end
     end
   rescue Redis::BaseConnectionError => e
     GitLfsS3::Application.settings.logger.warn\
       e.message
   end
-  return result
 end
 
 GitLfsS3::Application.on_authenticate do |username, password, is_safe|
@@ -144,7 +140,7 @@ GitLfsS3::Application.after :call do |env, app|
       data = MultiJson.load(req.body.tap { |b| b.rewind }.read)
       oid = data['oid']
       if @redis.connected?
-        if not @redis.get('backup/' + oid)
+        if not @redis.get('backup' + '/' + oid)
           @redis.publish 'backup', oid
         end
       else
