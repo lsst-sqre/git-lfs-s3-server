@@ -1,10 +1,16 @@
 #!/usr/bin/env ruby
 # require 'rubygems'
+require 'after_do'
 require 'logger'
 require 'git-lfs-s3'
+require 'multi_json'
 require 'octokit'
 require 'redis'
 require 'scrypt'
+
+####
+# Configure the server.
+####
 
 # Configure lsst-git-lfs-s3 gem.
 GitLfsS3::Application.set :aws_region, ENV['AWS_REGION']
@@ -20,8 +26,14 @@ GitLfsS3::Application.set :logger, Logger.new(STDOUT)
 # GitHub Organization used to verify membership.
 GITHUB_ORG = 'lsst'
 
-# Configure redis.
+# Configure and connect redis.
 @redis = Redis.new
+begin
+  @redis.ping
+rescue Redis::BaseConnectionError => e
+  GitLfsS3::Application.settings.logger.warn e.message
+end
+
 # Seconds to cache valid authentication.
 CACHE_EXPIRE = 900
 
@@ -43,8 +55,12 @@ if GitLfsS3::Application.settings.ceph_s3
     force_path_style: true,
     region: 'us-east-1',
     # ssl_ca_bundle: '/usr/local/etc/openssl/cert.pem' # Required for brew install on a mac.
-)
+  )
 end
+
+####
+# Authenticate using GitHub. Cache using redis.
+####
 
 def org_member?(client)
   begin
@@ -56,24 +72,27 @@ def org_member?(client)
     end
   rescue Octokit::OneTimePasswordRequired => e
     GitLfsS3::Application.settings.logger.warn\
-      'Octokit::OneTimePasswordRequired exception raised for username #{username}.'
+      'Octokit::OneTimePasswordRequired exception raised for username #{username}. '\
+      'Please use a personal access token.'
     return false
   rescue Octokit::Unauthorized
     return false
   end
 end
 
+def get_password_hash(username)
+  # Use the request username to avoid using the github API.
+  if @redis.connected?
+    cached_hash = @redis.get(username)
+    cached_password = SCrypt::Password.new(cached_hash)
+  end
+end
+
 def verify_user_and_permissions?(client, username, password)
   result = false
   begin
-    # Use the request username to avoid using the github API.
-    if @redis.connected?
-      cached_hash = @redis.get(username)
-    else
-      cached_hash = nil
-    end
-    if cached_hash
-      cached_password = SCrypt::Password.new(cached_hash)
+    cached_password = get_password_hash(username)
+    if cached_password
       result = cached_password == password
     else
       if org_member?(client)
@@ -100,5 +119,38 @@ GitLfsS3::Application.on_authenticate do |username, password, is_safe|
     client = Octokit::Client.new(:login => username,
                                  :password => password)
     verify_user_and_permissions?(client, username, password)
+  end
+end
+
+####
+# Notify Backup Service
+####
+
+def authorized?(env, app)
+  auth = Rack::Auth::Basic::Request.new(env)
+  auth.provided? && auth.basic? && auth.credentials && app.class.auth_callback.call(
+    auth.credentials[0], auth.credentials[1], request.safe?
+  )
+end
+
+GitLfsS3::Application.extend AfterDo
+GitLfsS3::Application.after :call do |env, app|
+  req = Rack::Request.new(env)
+  if req.post? and req.path == '/verify'\
+    and req.content_type == 'application/vnd.git-lfs+json'\
+    and true #authorized? env, app
+      GitLfsS3::Application.settings.logger.debug 'authorized!'
+      GitLfsS3::Application.settings.logger.debug req.body.tap { |b| b.rewind }.read
+      data = MultiJson.load(req.body.tap { |b| b.rewind }.read)
+      oid = data['oid']
+      if @redis.connected?
+        if not @redis.get('backup/' + oid)
+          @redis.publish 'backup', oid
+        end
+      else
+        GitLfsS3::Application.settings.logger.warn 'Unable to backup oid = #{oid}'
+      end
+  else
+      GitLfsS3::Application.settings.logger.debug "not authorized!"
   end
 end
