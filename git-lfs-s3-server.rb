@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-# require 'rubygems'
 require 'after_do'
 require 'logger'
 require 'git-lfs-s3'
@@ -124,6 +123,8 @@ end
 # Notify Backup Service
 ####
 
+# Auth method pulled out of GitLfsS3::Application internals.
+# So the AfterDo block can auth outside of the lsst-git-lfs-s3 library.
 def authorized?(env, app)
   auth = Rack::Auth::Basic::Request.new(env)
   GitLfsS3::Application.settings.logger.warn env
@@ -133,23 +134,33 @@ def authorized?(env, app)
   )
 end
 
-GitLfsS3::Application.extend AfterDo
-GitLfsS3::Application.after :call do |env, app|
-  req = Rack::Request.new(env)
-  if req.post? and req.path == '/verify'\
+def verify_call?(env, app, req)
+  req.post? and req.path == '/verify'\
     and req.content_type.include?('application/vnd.git-lfs+json')\
     and authorized? env, app
-      GitLfsS3::Application.settings.logger.debug req.body.tap { |b| b.rewind }.read
-      data = MultiJson.load(req.body.tap { |b| b.rewind }.read)
-      oid = data['oid']
-      oid_s3_name = 'data/' + oid
-      if @redis.connected?
-        if not @redis.get('backup=>' + oid_s3_name)
-          @redis.publish 'backup', oid_s3_name
-          GitLfsS3::Application.settings.logger.debug 'Publish message to backup S3 object #{oid_s3_name}.'
-        end
-      else
-        GitLfsS3::Application.settings.logger.warn 'Unable to backup oid = #{oid}'
+end
+
+# AfterDo is a library that allows simple callbacks to methods.
+# After sinatra's base call method this block is called.
+GitLfsS3::Application.extend AfterDo
+GitLfsS3::Application.after :call do |env, app|
+  # Create a request
+  req = Rack::Request.new(env)
+  # Check the HTTP method, route, content_type and whether it's authorized.
+  if verify_call? env, app, req
+    data = MultiJson.load(req.body.tap { |b| b.rewind }.read)
+    oid = data['oid']
+    # Use the s3 object/key name.
+    oid_s3_name = 'data/' + oid
+    if @redis.connected?
+      # Check to see if backup already exists.
+      if not @redis.get('backup=>' + oid_s3_name)
+        @redis.publish 'backup', oid_s3_name
+        # Log publish message.
+        GitLfsS3::Application.settings.logger.debug 'Publish message to backup S3 object #{oid_s3_name}.'
       end
+    else
+      GitLfsS3::Application.settings.logger.warn 'Unable to backup oid = #{oid}'
+    end
   end
 end
