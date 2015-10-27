@@ -71,8 +71,8 @@ def org_member?(client)
     end
   rescue Octokit::OneTimePasswordRequired => e
     GitLfsS3::Application.settings.logger.warn\
-      'Octokit::OneTimePasswordRequired exception raised for username #{username}. '\
-      'Please use a personal access token.'
+      "Octokit::OneTimePasswordRequired exception raised for username #{username}. "\
+      "Please use a personal access token."
     return false
   rescue Octokit::Unauthorized
     return false
@@ -157,10 +157,10 @@ GitLfsS3::Application.after :call do |env, app|
       if not @redis.get('backup=>' + oid_s3_name)
         @redis.publish 'backup', oid_s3_name
         # Log publish message.
-        GitLfsS3::Application.settings.logger.debug 'Publish message to backup S3 object #{oid_s3_name}.'
+        GitLfsS3::Application.settings.logger.debug "Publish message to backup S3 object #{oid_s3_name}."
       end
     else
-      GitLfsS3::Application.settings.logger.warn 'Unable to backup oid = #{oid}'
+      GitLfsS3::Application.settings.logger.warn "Unable to backup oid = #{oid}"
     end
   end
 end
