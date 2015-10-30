@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 
+gem 'after_do', '0.3.1'
 gem 'json', '~> 1.8.3'
 gem 'lsst-git-lfs-s3', '0.2.5'
 gem 'octokit', '4.1.0'
