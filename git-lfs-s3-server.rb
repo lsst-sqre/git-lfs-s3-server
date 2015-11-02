@@ -127,8 +127,6 @@ end
 # So the AfterDo block can auth outside of the lsst-git-lfs-s3 library.
 def authorized?(env, app)
   auth = Rack::Auth::Basic::Request.new(env)
-  GitLfsS3::Application.settings.logger.warn env
-  GitLfsS3::Application.settings.logger.warn auth
   auth.provided? && auth.basic? && auth.credentials && app.class.auth_callback.call(
     auth.credentials[0], auth.credentials[1], false
   )
