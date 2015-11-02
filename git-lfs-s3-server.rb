@@ -71,8 +71,8 @@ def org_member?(client)
     end
   rescue Octokit::OneTimePasswordRequired => e
     GitLfsS3::Application.settings.logger.warn\
-      "Octokit::OneTimePasswordRequired exception raised for username #{username}. "\
-      "Please use a personal access token."
+      'Octokit::OneTimePasswordRequired exception raised for username #{client.user.login}. '\
+      'Please use a personal access token.'
     return false
   rescue Octokit::Unauthorized
     return false
