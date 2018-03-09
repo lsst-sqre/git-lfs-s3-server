@@ -1,4 +1,4 @@
-FROM phusion/passenger-ruby24:0.9.27
+FROM phusion/passenger-ruby24:0.9.29
 
 # based on:
 # - https://github.com/phusion/passenger-docker
