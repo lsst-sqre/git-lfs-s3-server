@@ -30,7 +30,7 @@ COPY etc/nginx/main.d/lfs-secrets.conf /etc/nginx/main.d/lfs-secrets.conf
 WORKDIR /opt/lsst
 RUN git clone $REPO -b $REF git-lfs-s3-server
 WORKDIR /opt/lsst/git-lfs-s3-server
-RUN bundle install
+RUN bundle install --deployment --without=development
 
 # Use baseimage-docker's init process.
 # supports env var pass through to nginx
