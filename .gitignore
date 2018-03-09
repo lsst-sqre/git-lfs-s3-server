@@ -1,10 +1,11 @@
-*.gem
-*.rbc
 /.config
 /coverage/
+*.gem
 /InstalledFiles
 /pkg/
+*.rbc
 /spec/reports/
+*.swp
 /test/tmp/
 /test/version_tmp/
 /tmp/
