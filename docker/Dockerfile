@@ -1,4 +1,4 @@
-FROM phusion/passenger-ruby24:0.9.27
+FROM phusion/passenger-ruby24:0.9.29
 
 # based on:
 # - https://github.com/phusion/passenger-docker
@@ -10,7 +10,10 @@ ARG REF="master"
 # Set correct environment variables.
 ENV HOME /root
 
-RUN apt-get update -qq && apt-get upgrade -y -o Dpkg::Options::="--force-confold"
+RUN apt-get update -qq && \
+    apt-get upgrade -y -o Dpkg::Options::="--force-confold" && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # start up nginx
 RUN rm -f /etc/service/nginx/down
@@ -28,9 +31,6 @@ WORKDIR /opt/lsst
 RUN git clone $REPO -b $REF git-lfs-s3-server
 WORKDIR /opt/lsst/git-lfs-s3-server
 RUN bundle install
-
-# Clean up APT when done.
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Use baseimage-docker's init process.
 # supports env var pass through to nginx
