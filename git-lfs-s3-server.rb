@@ -1,4 +1,6 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
+
 require 'after_do'
 require 'logger'
 require 'git-lfs-s3'
@@ -41,10 +43,10 @@ SCrypt::Engine.calibrate
 
 # Configure aws-sdk for Ceph S3.
 if GitLfsS3::Application.settings.ceph_s3
-  if not GitLfsS3::Application.settings.public_server
+  unless GitLfsS3::Application.settings.public_server
     raise 'Ceph S3 only supports public_server mode.'
   end
-  if not GitLfsS3::Application.settings.endpoint
+  unless GitLfsS3::Application.settings.endpoint
     raise 'Ceph S3 requires an endpoint.'
   end
   Aws.config.update(
@@ -53,7 +55,8 @@ if GitLfsS3::Application.settings.ceph_s3
     secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'],
     force_path_style: true,
     region: 'us-east-1',
-    # ssl_ca_bundle: '/usr/local/etc/openssl/cert.pem' # Required for brew install on a mac.
+    # ssl_ca_bundle: '/usr/local/etc/openssl/cert.pem' # Required for brew
+    # install on a mac.
   )
 end
 
@@ -62,59 +65,49 @@ end
 ####
 
 def org_member?(client)
-  begin
-    client.user # Authenticate User.
-    if client.org_member?(GITHUB_ORG, client.user.login)
-      return true
-    else
-      return false
-    end
-  rescue Octokit::OneTimePasswordRequired => e
-    GitLfsS3::Application.settings.logger.warn\
-      'Octokit::OneTimePasswordRequired exception raised for username #{client.user.login}. '\
-      'Please use a personal access token.'
-    return false
-  rescue Octokit::Unauthorized
-    return false
-  end
+  client.user # Authenticate User.
+  return true if client.org_member?(GITHUB_ORG, client.user.login)
+  false
+rescue Octokit::OneTimePasswordRequired
+  GitLfsS3::Application.settings.logger.warn\
+    'Octokit::OneTimePasswordRequired exception raised for ' \
+    "username #{client.user.login}. " \
+    'Please use a personal access token.'
+  false
+rescue Octokit::Unauthorized
+  false
 end
 
 def get_password_hash(username)
   # Use the request username to avoid using the github API unnecessarily.
-  if @redis.connected?
-    cached_hash = @redis.get(username)
-    if cached_hash
-      SCrypt::Password.new(cached_hash)
-    end
-  end
+  return unless @redis.connected?
+  cached_hash = @redis.get(username)
+  SCrypt::Password.new(cached_hash) if cached_hash
 end
 
 def verify_user_and_permissions?(client, username, password)
-  begin
-    cached_password = get_password_hash(username)
-    if cached_password
-      return cached_password == password
-    else
-      if org_member?(client)
-        hash = SCrypt::Password.create(
-          password,
-          salt: SCrypt::Engine.generate_salt)
-        @redis.set(client.user.login, hash, ex: CACHE_EXPIRE)
-        return true
-      end
-    end
-  rescue Redis::BaseConnectionError => e
-    GitLfsS3::Application.settings.logger.warn\
-      e.message
+  cached_password = get_password_hash(username)
+  return cached_password == password if cached_password
+
+  if org_member?(client)
+    hash = SCrypt::Password.create(
+      password,
+      salt: SCrypt::Engine.generate_salt
+    )
+    @redis.set(client.user.login, hash, ex: CACHE_EXPIRE)
+    return true
   end
+rescue Redis::BaseConnectionError => e
+  GitLfsS3::Application.settings.logger.warn\
+    e.message
 end
 
 GitLfsS3::Application.on_authenticate do |username, password, is_safe|
   if is_safe
     true
   else
-    client = Octokit::Client.new(:login => username,
-                                 :password => password)
+    client = Octokit::Client.new(login: username,
+                                 password: password)
     verify_user_and_permissions?(client, username, password)
   end
 end
@@ -127,15 +120,18 @@ end
 # So the AfterDo block can auth outside of the lsst-git-lfs-s3 library.
 def authorized?(env, app)
   auth = Rack::Auth::Basic::Request.new(env)
-  auth.provided? && auth.basic? && auth.credentials && app.class.auth_callback.call(
-    auth.credentials[0], auth.credentials[1], false
-  )
+  auth.provided? \
+    && auth.basic? \
+    && auth.credentials \
+    && app.class.auth_callback.call(
+      auth.credentials[0], auth.credentials[1], false
+    )
 end
 
 def verify_call?(env, app, req)
-  req.post? and req.path == '/verify'\
-    and req.content_type.include?('application/vnd.git-lfs+json')\
-    and authorized? env, app
+  req.post? && (req.path == '/verify')\
+    && req.content_type.include?('application/vnd.git-lfs+json')\
+    && authorized?(env, app)
 end
 
 # AfterDo is a library that allows simple callbacks to methods.
@@ -146,16 +142,18 @@ GitLfsS3::Application.after :call do |env, app|
   req = Rack::Request.new(env)
   # Check the HTTP method, route, content_type and whether it's authorized.
   if verify_call? env, app, req
-    data = MultiJson.load(req.body.tap { |b| b.rewind }.read)
+    data = MultiJson.load(req.body.tap(&:rewind).read)
     oid = data['oid']
     # Use the s3 object/key name.
     oid_s3_name = 'data/' + oid
     if @redis.connected?
       # Check to see if backup already exists.
-      if not @redis.get('backup=>' + oid_s3_name)
+      unless @redis.get('backup=>' + oid_s3_name)
         @redis.publish 'backup', oid_s3_name
         # Log publish message.
-        GitLfsS3::Application.settings.logger.debug "Publish message to backup S3 object #{oid_s3_name}."
+        GitLfsS3::Application.settings.logger.debug(
+          "Publish message to backup S3 object #{oid_s3_name}."
+        )
       end
     else
       GitLfsS3::Application.settings.logger.warn "Unable to backup oid = #{oid}"
