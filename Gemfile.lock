@@ -28,9 +28,6 @@ GEM
     multipart-post (2.0.0)
     octokit (4.1.0)
       sawyer (~> 0.6.0, >= 0.5.3)
-    passenger (5.0.20)
-      rack
-      rake (>= 0.8.1)
     rack (1.6.8)
     rack-protection (1.5.3)
       rack
@@ -57,7 +54,6 @@ DEPENDENCIES
   json (~> 1.8.5)
   lsst-git-lfs-s3 (= 0.3.4)
   octokit (= 4.1.0)
-  passenger (= 5.0.20)
   redis (= 3.2.1)
   scrypt (= 2.0.2)
 
