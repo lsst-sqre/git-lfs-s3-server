@@ -28,7 +28,16 @@ GitLfsS3::Application.set :logger, Logger.new(STDOUT)
 GITHUB_ORG = ENV['LFS_GITHUB_ORG'] || 'lsst'
 
 # Configure and connect redis.
-@redis = Redis.new
+args = {}
+
+{
+  'REDIS_SERVICE_HOST' => :host,
+  'REDIS_SERVICE_PORT' => :port,
+}.each do |k, v|
+  ENV.key?(k) && args[v] = ENV[k]
+end
+
+@redis = Redis.new(args)
 begin
   @redis.ping
 rescue Redis::BaseConnectionError => e
