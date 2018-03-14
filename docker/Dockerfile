@@ -26,6 +26,14 @@ COPY etc/nginx/sites-available/lfs.conf /etc/nginx/sites-available/lfs.conf
 RUN ln -s /etc/nginx/sites-available/lfs.conf /etc/nginx/sites-enabled/lfs.conf
 COPY etc/nginx/main.d/lfs-secrets.conf /etc/nginx/main.d/lfs-secrets.conf
 
+# rm uneeded service configs so an uneeded runsv process isn't started per
+# unstarted service
+RUN rm -rf /etc/service/nginx-log-forwarder \
+    /etc/service/sshd
+
+# the nginx run script attempts to restart nginx-log-forwarder
+RUN sed -Ei 's/(^sv restart.*)/#\1/' /etc/service/nginx/run
+
 # install git-lfs-s3-server rails app
 WORKDIR /opt/lsst
 RUN git clone $REPO -b $REF git-lfs-s3-server
