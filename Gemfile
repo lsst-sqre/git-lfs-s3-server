@@ -11,5 +11,5 @@ gem 'scrypt', '2.0.2'
 
 group :development do
   gem 'highline', '1.7.3'
-  gem 'rubocop', '~> 0.53.0'
+  gem 'rubocop', '~> 0.61.1'
 end
