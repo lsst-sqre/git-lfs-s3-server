@@ -58,12 +58,13 @@ if GitLfsS3::Application.settings.ceph_s3
   unless GitLfsS3::Application.settings.endpoint
     raise 'Ceph S3 requires an endpoint.'
   end
+
   Aws.config.update(
-    endpoint: ENV['LFS_CEPH_ENDPOINT'],
-    access_key_id: ENV['AWS_ACCESS_KEY_ID'],
+    endpoint:          ENV['LFS_CEPH_ENDPOINT'],
+    access_key_id:     ENV['AWS_ACCESS_KEY_ID'],
     secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'],
-    force_path_style: true,
-    region: 'us-east-1',
+    force_path_style:  true,
+    region:            'us-east-1',
     # ssl_ca_bundle: '/usr/local/etc/openssl/cert.pem' # Required for brew
     # install on a mac.
   )
@@ -75,8 +76,7 @@ end
 
 def org_member?(client)
   client.user # Authenticate User.
-  return true if client.org_member?(GITHUB_ORG, client.user.login)
-  false
+  client.org_member?(GITHUB_ORG, client.user.login)
 rescue Octokit::OneTimePasswordRequired
   GitLfsS3::Application.settings.logger.warn\
     'Octokit::OneTimePasswordRequired exception raised for ' \
@@ -90,6 +90,7 @@ end
 def get_password_hash(username)
   # Use the request username to avoid using the github API unnecessarily.
   return unless @redis.connected?
+
   cached_hash = @redis.get(username)
   SCrypt::Password.new(cached_hash) if cached_hash
 end
@@ -115,7 +116,7 @@ GitLfsS3::Application.on_authenticate do |username, password, is_safe|
   if is_safe
     true
   else
-    client = Octokit::Client.new(login: username,
+    client = Octokit::Client.new(login:    username,
                                  password: password)
     verify_user_and_permissions?(client, username, password)
   end
