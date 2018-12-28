@@ -22,10 +22,10 @@ GEM
     jaro_winkler (1.5.1)
     jmespath (1.4.0)
     json (1.8.6)
-    lsst-git-lfs-s3 (0.3.9)
+    lsst-git-lfs-s3 (0.3.10)
       aws-sdk (~> 2)
       multi_json (~> 1)
-      sinatra (~> 2)
+      sinatra (>= 2.0.2)
     multi_json (1.13.1)
     multipart-post (2.0.0)
     mustermann (1.0.3)
@@ -71,11 +71,11 @@ DEPENDENCIES
   after_do (= 0.3.1)
   highline (= 1.7.3)
   json (~> 1.8.5)
-  lsst-git-lfs-s3 (= 0.3.9)
+  lsst-git-lfs-s3 (= 0.3.10)
   octokit (= 4.1.0)
   redis (= 3.2.1)
   rubocop (~> 0.61.1)
   scrypt (= 2.0.2)
 
 BUNDLED WITH
-   1.16.2
+   1.16.6
