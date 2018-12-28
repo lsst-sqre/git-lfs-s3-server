@@ -31,8 +31,8 @@ GITHUB_ORG = ENV['LFS_GITHUB_ORG'] || 'lsst'
 args = {}
 
 {
-  'REDIS_SERVICE_HOST' => :host,
-  'REDIS_SERVICE_PORT' => :port,
+  'LFS_REDIS_HOST' => :host,
+  'LFS_REDIS_PORT' => :port,
 }.each do |k, v|
   ENV.key?(k) && args[v] = ENV[k]
 end
