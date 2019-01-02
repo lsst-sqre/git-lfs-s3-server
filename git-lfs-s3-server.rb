@@ -78,10 +78,11 @@ def org_member?(client)
   client.user # Authenticate User.
   client.org_member?(GITHUB_ORG, client.user.login)
 rescue Octokit::OneTimePasswordRequired
-  GitLfsS3::Application.settings.logger.warn\
-    'Octokit::OneTimePasswordRequired exception raised for ' \
-    "username #{client.user.login}. " \
-    'Please use a personal access token.'
+  GitLfsS3::Application.settings.logger.warn <<~WARN
+    Octokit::OneTimePasswordRequired exception raised for
+    username #{client.user.login}.
+    Please use a personal access token.
+  WARN
   false
 rescue Octokit::Unauthorized
   false
@@ -108,8 +109,7 @@ def verify_user_and_permissions?(client, username, password)
     return true
   end
 rescue Redis::BaseConnectionError => e
-  GitLfsS3::Application.settings.logger.warn\
-    e.message
+  GitLfsS3::Application.settings.logger.warn e.message
 end
 
 GitLfsS3::Application.on_authenticate do |username, password, is_safe|
@@ -130,18 +130,19 @@ end
 # So the AfterDo block can auth outside of the lsst-git-lfs-s3 library.
 def authorized?(env, app)
   auth = Rack::Auth::Basic::Request.new(env)
-  auth.provided? \
-    && auth.basic? \
-    && auth.credentials \
-    && app.class.auth_callback.call(
+  auth.provided? &&
+    auth.basic? &&
+    auth.credentials &&
+    app.class.auth_callback.call(
       auth.credentials[0], auth.credentials[1], false
     )
 end
 
 def verify_call?(env, app, req)
-  req.post? && (req.path == '/verify')\
-    && req.content_type.include?('application/vnd.git-lfs+json')\
-    && authorized?(env, app)
+  req.post? &&
+    (req.path == '/verify') &&
+    req.content_type.include?('application/vnd.git-lfs+json') &&
+    authorized?(env, app)
 end
 
 # AfterDo is a library that allows simple callbacks to methods.
