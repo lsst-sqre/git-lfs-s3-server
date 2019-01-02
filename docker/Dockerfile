@@ -10,6 +10,7 @@ ARG REF="master"
 # Set correct environment variables.
 ENV HOME /root
 
+# hadolint ignore=DL3005
 RUN apt-get update -qq && \
     apt-get upgrade -y -o Dpkg::Options::="--force-confold" && \
     apt-get clean && \

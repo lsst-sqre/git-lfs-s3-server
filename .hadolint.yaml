@@ -1,0 +1,13 @@
+---
+ignored:
+  # disable USER root
+  - DL3002
+  # disable pinning apk package versions
+  - DL3018
+  # disable following sourced files
+  - SC1091
+  # disable don't use :latest
+  - DL3007
+  # broken with ARG in FROM
+  # See: https://github.com/hadolint/hadolint/issues/219
+  - DL3006
