@@ -113,13 +113,11 @@ rescue Redis::BaseConnectionError => e
 end
 
 GitLfsS3::Application.on_authenticate do |username, password, is_safe|
-  if is_safe
-    true
-  else
-    client = Octokit::Client.new(login:    username,
-                                 password: password)
-    verify_user_and_permissions?(client, username, password)
-  end
+  return true if is_safe
+
+  client = Octokit::Client.new(login:    username,
+                               password: password)
+  verify_user_and_permissions?(client, username, password)
 end
 
 ####
