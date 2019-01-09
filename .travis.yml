@@ -25,7 +25,6 @@ matrix:
       script: ./tests/shellcheck.sh
 
     - env: TEST=hadolint
-      language: c
       services:
         - docker
       script: ./tests/hadolint.sh
