@@ -20,7 +20,7 @@ GEM
     highline (1.7.3)
     jaro_winkler (1.5.2)
     jmespath (1.4.0)
-    json (1.8.6)
+    json (2.3.0)
     lsst-git-lfs-s3 (0.3.13)
       aws-sdk (~> 2.11)
       multi_json (~> 1.13)
@@ -68,7 +68,7 @@ PLATFORMS
 
 DEPENDENCIES
   highline (= 1.7.3)
-  json (~> 1.8.5)
+  json (~> 2.3.0)
   lsst-git-lfs-s3 (= 0.3.13)
   octokit (= 4.1.0)
   redis (= 3.2.1)
