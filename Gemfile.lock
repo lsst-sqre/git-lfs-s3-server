@@ -38,7 +38,7 @@ GEM
     rack-protection (2.0.5)
       rack
     rainbow (3.0.0)
-    rake (12.3.2)
+    rake (13.0.1)
     redis (3.2.1)
     rubocop (0.61.1)
       jaro_winkler (~> 1.5.1)
