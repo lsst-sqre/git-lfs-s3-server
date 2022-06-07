@@ -19,7 +19,7 @@ GEM
       rake
     highline (1.7.3)
     jaro_winkler (1.5.2)
-    jmespath (1.4.0)
+    jmespath (1.6.1)
     json (2.3.0)
     lsst-git-lfs-s3 (0.3.13)
       aws-sdk (~> 2.11)
